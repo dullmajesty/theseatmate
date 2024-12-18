@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 const Home = () => {
@@ -53,7 +54,7 @@ const Home = () => {
           <TextInput
             style={styles.searchInput}
             placeholder="Search here..."
-            placeholderTextColor="#fff"
+            placeholderTextColor="#ddd"
             value={searchText}
             onChangeText={(text) => setSearchText(text)}
           />
@@ -82,9 +83,10 @@ const Home = () => {
             <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>{item.name}</Text>
               <View style={styles.cardRow}>
-                <Text style={styles.cardLocation}>
-                  <Icon name="map-pin" size={16} color="#F6B01A" /> {item.location}
-                </Text>
+                <View style={styles.locationContainer}>
+                  <Ionicons name="location-sharp" size={16} color="#E53935" />
+                  <Text style={styles.cardLocation}>{item.location}</Text>
+                </View>
                 <TouchableOpacity
                   onPress={() => handleLike(item.id)}
                   style={styles.likeButton}
@@ -108,18 +110,39 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#CAC4D0" },
   searchContainer: { paddingVertical: 20, paddingHorizontal: 15 },
   title: { fontSize: 24, fontWeight: "bold", color: "#FFF", textAlign: "center" },
-  searchBar: { flexDirection: "row", alignItems: "center", backgroundColor: "#F6B01A", borderRadius: 25, height: 50, paddingHorizontal: 20 },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F6B01A",
+    borderRadius: 25,
+    height: 50,
+    paddingHorizontal: 20,
+  },
   searchIcon: { marginRight: 10 },
   searchInput: { flex: 1, fontSize: 16, color: "#fff" },
   recommendationHeader: { padding: 15 },
   recommendationHeaderText: { fontSize: 20, fontWeight: "bold", color: "#333" },
   recommendationContainer: { padding: 15 },
-  card: { backgroundColor: "#FFF", borderRadius: 10, marginBottom: 15, overflow: "hidden" },
+  card: {
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    marginBottom: 15,
+    overflow: "hidden",
+  },
   cardImage: { width: "100%", height: 150 },
   cardContent: { padding: 10 },
   cardTitle: { fontSize: 18, fontWeight: "bold", color: "#333" },
-  cardRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  cardLocation: { fontSize: 14, color: "#666", flex: 1 },
+  cardRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  locationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  cardLocation: { fontSize: 14, color: "#666", marginLeft: 5 },
   likeButton: { marginLeft: 10 },
 });
 

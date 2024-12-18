@@ -1,49 +1,38 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
 import React, { useState } from "react";
-import { Ionicons } from "@expo/vector-icons"; // Importing Ionicons for the back icon
+import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView, Platform } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker"; // Import the DateTimePicker
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons"; // Back Icon
 
 const Reservation = () => {
   const { name, location, imageId } = useLocalSearchParams();
   const router = useRouter();
 
-  // State for reservation form
+  // States
   const [selectedPerson, setSelectedPerson] = useState("Enter Number of Persons");
-  const [selectedDate, setSelectedDate] = useState("mm/dd/yyyy");
-  const [selectedTime, setSelectedTime] = useState("00:00 AM/PM"); // New state for time
-  const [selectedRate, setSelectedRate] = useState(""); // Track selected rate
+  const [selectedDate, setSelectedDate] = useState(new Date()); // State for date
+  const [selectedTime, setSelectedTime] = useState(new Date()); // State for time
+  const [showDatePicker, setShowDatePicker] = useState(false); // Toggle date picker
+  const [showTimePicker, setShowTimePicker] = useState(false); // Toggle time picker
+  const [selectedRate, setSelectedRate] = useState("");
 
-  // State for handling image
   const imageMap = {
     "1": require("../assets/pic1.jpg"),
     "2": require("../assets/pic1.jpg"),
   };
-
   const image = imageMap[String(imageId)] || null;
 
-  // Handle date and time input changes
-  const handleDateChange = (date) => {
-    setSelectedDate(date); // Update the selected date in the state
+  // Handlers
+  const handleDateChange = (event, date) => {
+    setShowDatePicker(Platform.OS === "ios");
+    if (date) setSelectedDate(date);
   };
 
-  const handleTimeChange = (time) => {
-    setSelectedTime(time); // Update the selected time in the state
+  const handleTimeChange = (event, time) => {
+    setShowTimePicker(Platform.OS === "ios");
+    if (time) setSelectedTime(time);
   };
 
-  // Handle rate selection
-  const handleRateSelect = (rate) => {
-    setSelectedRate(rate); // Update selected rate
-  };
-
-  // Navigate to reservation summary
   const navigateToSummary = () => {
     router.push({
       pathname: "/reservation-summary",
@@ -51,56 +40,33 @@ const Reservation = () => {
         name,
         location,
         rate: selectedRate,
-        date: selectedDate,
-        time: selectedTime, // Include selected time
+        date: selectedDate.toDateString(),
+        time: selectedTime.toLocaleTimeString(),
         persons: selectedPerson,
       },
     });
   };
 
-  // Navigate back to home
-  const navigateBackHome = () => {
-    router.push("Home");
-  };
-
   return (
     <ScrollView style={styles.container}>
-      {/* Header Section */}
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={navigateBackHome}>
-          <Ionicons
-            name="arrow-back"
-            size={20}
-            color="#fffff"
-            style={styles.backIcon}
-          />
+        <TouchableOpacity onPress={() => router.push("Home")}>
+          <Ionicons name="arrow-back" size={20} color="#fffff" style={styles.backIcon} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Reservation</Text>
       </View>
 
-      {/* Image and Details Section */}
+      {/* Image Card */}
       <View style={styles.card}>
-        <View style={styles.cardImageContainer}>
-          {image ? (
-            <Image source={image} style={styles.cardImage} />
-          ) : (
-            <Text style={{ color: "red" }}>Image not found</Text>
-          )}
-        </View>
-
+        {image && <Image source={image} style={styles.cardImage} />}
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>{name}</Text>
           <Text style={styles.cardSubtitle}>{location}</Text>
-          <Text style={styles.cardDescription}>
-            Smart Work Study Hub & Workspace in Cagayan de Oro is a great spot
-            for studying or working. It has fast internet, comfy seating, and a
-            quiet environment perfect for focus. The space is modern, clean, and
-            affordable, making it ideal for students and professionals.
-          </Text>
         </View>
       </View>
 
-      {/* Reservation Form Section */}
+      {/* Reservation Form */}
       <View style={styles.reservationSection}>
         <Text style={styles.sectionTitle}>Reservation Form</Text>
         <View style={styles.row}>
@@ -113,43 +79,61 @@ const Reservation = () => {
           />
 
           {/* Date input */}
-          <TextInput
-            style={styles.dateInput}
-            placeholder="mm/dd/yyyy"
-            value={selectedDate}
-            onChangeText={handleDateChange}
-            keyboardType="numeric"
-          />
+          <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+            <TextInput
+              style={styles.dateInput}
+              placeholder="mm/dd/yyyy"
+              editable={false}
+              value={selectedDate.toDateString()} // Display the selected date
+            />
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="date"
+              display="default"
+              onChange={handleDateChange}
+            />
+          )}
         </View>
 
         {/* Time input */}
-        <TextInput
-          style={styles.timeInput}
-          placeholder="hh:mm AM/PM"
-          value={selectedTime}
-          onChangeText={handleTimeChange}
-          keyboardType="default"
-        />
+        <TouchableOpacity onPress={() => setShowTimePicker(true)}>
+          <TextInput
+            style={styles.timeInput}
+            placeholder="hh:mm AM/PM"
+            editable={false}
+            value={selectedTime.toLocaleTimeString()} // Display the selected time
+          />
+        </TouchableOpacity>
+        {showTimePicker && (
+          <DateTimePicker
+            value={selectedTime}
+            mode="time"
+            display="default"
+            onChange={handleTimeChange}
+          />
+        )}
 
         <Text style={styles.sectionTitle}>Rate</Text>
         <View style={styles.rateRow}>
           <TouchableOpacity
             style={styles.rateBox}
-            onPress={() => handleRateSelect("₱35 / hour")}
+            onPress={() => setSelectedRate("₱35 / hour")}
           >
             <Text style={styles.ratePrice}>₱35</Text>
             <Text style={styles.rateLabel}>/ hour</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.rateBox}
-            onPress={() => handleRateSelect("₱100 / 3 hours")}
+            onPress={() => setSelectedRate("₱100 / 3 hours")}
           >
             <Text style={styles.ratePrice}>₱100</Text>
             <Text style={styles.rateLabel}>/ 3 hours</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.rateBox}
-            onPress={() => handleRateSelect("₱300 / day")}
+            onPress={() => setSelectedRate("₱300 / day")}
           >
             <Text style={styles.ratePrice}>₱300</Text>
             <Text style={styles.rateLabel}>/ day</Text>
