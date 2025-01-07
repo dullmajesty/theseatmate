@@ -11,6 +11,8 @@ const RootLayout = () => {
         <Stack.Screen name="SignUp" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="Reservation" options={{ headerShown: false }} />
+        <Stack.Screen name="reservation-summary" options={{ headerShown: false }} />
+        <Stack.Screen name="Receipt" options={{ headerShown: false }} />
       </Stack>
     </PaperProvider>
   );

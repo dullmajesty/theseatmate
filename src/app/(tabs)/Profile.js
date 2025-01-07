@@ -1,13 +1,46 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { supabase } from "../../lib/supabase"; // Import Supabase client
 import { useNavigation } from "@react-navigation/native";
 
 const UserProfile = () => {
   const navigation = useNavigation();
+
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true);
   const [isDarkModeEnabled, setIsDarkModeEnabled] = useState(false);
+  const [userInfo, setUserInfo] = useState({ name: "", username: "", email: "" }); // State to store user info
+
+  useEffect(() => {
+    fetchUserProfile(); // Fetch user profile on component mount
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError) throw authError;
+
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles") // Replace "profiles" with your Supabase table name
+        .select("name, username, email")
+        .eq("id", user.id);
+
+      if (profileError) throw profileError;
+      if (profile && profile.length > 0) {
+        setUserInfo(profile[0]); // Set the first profile entry in case there are multiple records
+      } else {
+        console.log("No profile found for the user");
+        Alert.alert("Error", "Profile not found.");
+      }
+    } catch (error) {
+      Alert.alert("Error", error.message); // Handle errors
+    }
+  };
 
   const navigateToEditProfile = () => {
     navigation.navigate("EditProfile");
@@ -36,17 +69,18 @@ const UserProfile = () => {
           source={require("../../assets/DefaultProfile.jpg")} // Replace with your actual path
           style={styles.avatarImage}
         />
-        <Text style={styles.name}>Colet Vergara</Text>
-        <Text style={styles.email}>cv@gmail.com</Text>
+        <Text style={styles.name}>{userInfo.name || "Name not set"}</Text>
+        <Text style={styles.username}>{userInfo.username || "Username not set"}</Text>
+        <Text style={styles.email}>{userInfo.email || "Email not set"}</Text>
         <TouchableOpacity style={styles.editButton} onPress={navigateToEditProfile}>
           <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
       </View>
 
       {/* Settings Section */}
-      <View style={styles.settingsContainer}> 
+      <View style={styles.settingsContainer}>
         <TouchableOpacity style={styles.settingsOption} onPress={navigateToEditProfile}>
-          <View style={styles.optionLeft} >
+          <View style={styles.optionLeft}>
             <Icon name="settings" size={20} color="#333" style={styles.icon} />
             <Text style={styles.settingsText}>Account Settings</Text>
           </View>
@@ -54,7 +88,7 @@ const UserProfile = () => {
         </TouchableOpacity>
         {/* Notifications Toggle */}
         <View style={styles.settingsOption}>
-          <View style={styles.optionLeft} >
+          <View style={styles.optionLeft}>
             <Icon name="notifications" size={20} color="#333" style={styles.icon} />
             <Text style={styles.settingsText}>Notifications</Text>
           </View>
@@ -135,7 +169,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 10,
     color: "#333",
-
+  },
+  username: {
+    fontSize: 16,
+    color: "#666",
+    marginTop: 5,
   },
   email: {
     fontSize: 14,

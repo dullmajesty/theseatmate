@@ -9,26 +9,28 @@ const data = [
     title: "Study Hub CDO",
     location: "San Agustin St. corner Pabayo St.",
     image: require("../../assets/pic1.jpg"), // Update with correct path
-    initialRating: 0,
+    initialRating: 5,
   },
   {
     id: "2",
-    title: "Smart Work CDO",
-    location: "6th Nazareth, across 19-6th corner",
-    image: require("../../assets/pic1.jpg"), // Update with correct path
-    initialRating: 0,
+    title: "Fruition Co-working Space",
+    location: "Lourdes Dormitory Bldg, Ilig",
+    image: require("../../assets/pic2.jpg"), // Update with correct path
+    initialRating: 4,
   },
   {
     id: "3",
-    title: "D' Study Hub",
-    location: "Capistrano-Echem Street CDO",
-    image: require("../../assets/pic1.jpg"), // Update with correct path
-    initialRating: 0,
+    title: "The Hive Co-working",
+    location: "Centrio Mall, Cagayan de Oro",
+    image: require("../../assets/pic5.jpg"), // Update with correct path
+    initialRating: 4,
   },
 ];
 
 const Like = () => {
-  const [likedItems, setLikedItems] = useState({});
+  const [likedItems, setLikedItems] = useState(
+    data.reduce((acc, item) => ({ ...acc, [item.id]: true }), {}) // All items liked by default
+  );
   const [ratings, setRatings] = useState(
     data.reduce((acc, item) => ({ ...acc, [item.id]: item.initialRating }), {})
   );
@@ -62,7 +64,7 @@ const Like = () => {
           <Icon
             name={likedItems[item.id] ? "heart" : "heart-o"}
             size={20}
-            color={likedItems[item.id] ? "red" : "#888"}
+            color={likedItems[item.id] ? "red" : ""}
           />
         </TouchableOpacity>
       </View>
@@ -172,7 +174,7 @@ const styles = StyleSheet.create({
   },
   star: {
     fontSize: 20,
-    color: "#FFD700",
+    color: "#FFD700", // Gold color for filled stars
     marginRight: 2,
   },
   locationContainer: {

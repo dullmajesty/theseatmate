@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons"; // Back Icon
 
 const Reservation = () => {
   const { name, location, imageId } = useLocalSearchParams();
+  const [selectedPersonName, setSelectedPersonName] = useState("");
   const router = useRouter();
 
   // States
@@ -18,7 +19,13 @@ const Reservation = () => {
 
   const imageMap = {
     "1": require("../assets/pic1.jpg"),
-    "2": require("../assets/pic1.jpg"),
+    "2": require("../assets/pic2.jpg"),
+    "3": require("../assets/pic3.jpg"),
+    "4": require("../assets/pic4.jpg"),
+    "5": require("../assets/pic5.jpg"),
+    "6": require("../assets/pic6.jpg"),
+    "7": require("../assets/pic7.jpg"),
+    "8": require("../assets/pic8.jpg"),
   };
   const image = imageMap[String(imageId)] || null;
 
@@ -34,15 +41,21 @@ const Reservation = () => {
   };
 
   const navigateToSummary = () => {
+    const subtotal = selectedRate * selectedPerson; // Just an example of calculation
+    const total = subtotal; // Add logic for taxes, discounts, etc.
+
     router.push({
       pathname: "/reservation-summary",
       params: {
-        name,
+        storeName: name,
+        personName: selectedPersonName,
         location,
         rate: selectedRate,
         date: selectedDate.toDateString(),
         time: selectedTime.toLocaleTimeString(),
         persons: selectedPerson,
+        subtotal: subtotal,
+        total: total,
       },
     });
   };
@@ -69,38 +82,42 @@ const Reservation = () => {
       {/* Reservation Form */}
       <View style={styles.reservationSection}>
         <Text style={styles.sectionTitle}>Reservation Form</Text>
-        <View style={styles.row}>
-          {/* Number of persons input */}
+
+        {/* Number of persons input */}
+        <View style={styles.inputRow}>
+          <Ionicons name="people" size={24} color="#F6B01A" style={styles.icon} />
           <TextInput
-            style={styles.personInput}
+            style={styles.input}
             placeholder="Enter number of persons"
             value={selectedPerson}
             onChangeText={setSelectedPerson}
           />
-
-          {/* Date input */}
-          <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-            <TextInput
-              style={styles.dateInput}
-              placeholder="mm/dd/yyyy"
-              editable={false}
-              value={selectedDate.toDateString()} // Display the selected date
-            />
-          </TouchableOpacity>
-          {showDatePicker && (
-            <DateTimePicker
-              value={selectedDate}
-              mode="date"
-              display="default"
-              onChange={handleDateChange}
-            />
-          )}
         </View>
 
-        {/* Time input */}
-        <TouchableOpacity onPress={() => setShowTimePicker(true)}>
+        {/* Date input */}
+        <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.inputRow}>
+          <Ionicons name="calendar" size={24} color="#F6B01A" style={styles.icon} />
           <TextInput
-            style={styles.timeInput}
+            style={styles.input}
+            placeholder="mm/dd/yyyy"
+            editable={false}
+            value={selectedDate.toDateString()} // Display the selected date
+          />
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            value={selectedDate}
+            mode="date"
+            display="default"
+            onChange={handleDateChange}
+          />
+        )}
+
+        {/* Time input */}
+        <TouchableOpacity onPress={() => setShowTimePicker(true)} style={styles.inputRow}>
+          <Ionicons name="time" size={24} color="#F6B01A" style={styles.icon} />
+          <TextInput
+            style={styles.input}
             placeholder="hh:mm AM/PM"
             editable={false}
             value={selectedTime.toLocaleTimeString()} // Display the selected time
@@ -141,14 +158,27 @@ const Reservation = () => {
         </View>
 
         <Text style={styles.sectionTitle}>Person Info</Text>
+
         {/* Name input */}
-        <TextInput style={styles.nameInput} placeholder="Name" />
+        <View style={styles.inputRow}>
+          <Ionicons name="person" size={24} color="#F6B01A" style={styles.icon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your name"
+            value={selectedPersonName}
+            onChangeText={setSelectedPersonName}
+          />
+        </View>
+
         {/* Phone number input */}
-        <TextInput
-          style={styles.phoneInput}
-          placeholder="Phone Number"
-          keyboardType="phone-pad"
-        />
+        <View style={styles.inputRow}>
+          <Ionicons name="call" size={24} color="#F6B01A" style={styles.icon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Phone Number"
+            keyboardType="phone-pad"
+          />
+        </View>
 
         <TouchableOpacity style={styles.button} onPress={navigateToSummary}>
           <Text style={styles.buttonText}>Next</Text>
@@ -168,6 +198,7 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 16,
     flexDirection: "row", // Aligns items in a row
+    alignItems: "center", // Align items vertically in the center
   },
   headerTitle: {
     fontSize: 24,
@@ -177,7 +208,6 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     marginRight: 10,
-    top: 7,
   },
   card: {
     backgroundColor: "#FFF",
@@ -189,10 +219,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
-  },
-  cardImageContainer: {
-    alignItems: "center",
-    marginBottom: 16,
   },
   cardImage: {
     width: "100%",
@@ -213,10 +239,6 @@ const styles = StyleSheet.create({
     color: "#777",
     marginBottom: 8,
   },
-  cardDescription: {
-    fontSize: 14,
-    color: "#555",
-  },
   reservationSection: {
     backgroundColor: "#FFF",
     borderRadius: 12,
@@ -233,43 +255,20 @@ const styles = StyleSheet.create({
     color: "#333333",
     marginBottom: 8,
   },
-  row: {
+  inputRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
-  personInput: {
-    backgroundColor: "#F6B01A",
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    width: "48%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
+  icon: {
+    marginRight: 12,
   },
-  dateInput: {
+  input: {
     backgroundColor: "#F6B01A",
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    marginBottom: 12,
-    width: "48%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  timeInput: {
-    backgroundColor: "#F6B01A",
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 12,
+    width: "80%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -303,41 +302,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#555",
   },
-  nameInput: {
-    backgroundColor: "#F6B01A",
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  phoneInput: {
-    backgroundColor: "#F6B01A",
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
   button: {
     backgroundColor: "#09013A",
     borderRadius: 8,
-    alignItems: "center",
     paddingVertical: 16,
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 16,
   },
   buttonText: {
-    fontSize: 16,
+    color: "#FFFFFF",
+    fontSize: 18,
     fontWeight: "bold",
-    color: "#FFF",
   },
 });
 

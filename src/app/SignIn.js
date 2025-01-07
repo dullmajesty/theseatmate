@@ -1,8 +1,29 @@
 import { router } from 'expo-router';
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { supabase } from '../lib/supabase';
 
 const LoginPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      // Attempt to log in with Supabase
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      Alert.alert('Success', 'Logged in successfully!');
+      router.push('/Home'); // Navigate to Home page after successful login
+    } catch (error) {
+      Alert.alert('Error', error.message); // Show error message for failed login
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* App Title */}
@@ -11,11 +32,13 @@ const LoginPage = () => {
       {/* Welcome Text */}
       <Text style={styles.welcomeText}>WELCOME BACK</Text>
 
-      {/* Username Input */}
+      {/* Email Input */}
       <TextInput
-        placeholder="Username"
+        placeholder="Email"
         placeholderTextColor="#FFFFFF"
         style={styles.input}
+        value={email}
+        onChangeText={setEmail}
       />
 
       {/* Password Input */}
@@ -24,32 +47,28 @@ const LoginPage = () => {
         placeholderTextColor="#FFFFFF"
         secureTextEntry={true}
         style={styles.input}
+        value={password}
+        onChangeText={setPassword}
       />
 
       {/* Options Row */}
       <View style={styles.optionsRow}>
-        <Text style={styles.smallText}>
-          □ Remember me
-        </Text>
+        <Text style={styles.smallText}>□ Remember me</Text>
         <TouchableOpacity>
           <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
         </TouchableOpacity>
       </View>
 
       {/* Login Button */}
-      <TouchableOpacity 
-        style={styles.loginButton}
-        onPress={() => router.navigate('Home')}
-        >
+      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.loginButtonText}>LOG IN</Text>
       </TouchableOpacity>
 
       {/* Sign-Up Option */}
       <View style={styles.signUpRow}>
         <Text style={styles.smallText}>Don't have an account? </Text>
-        <TouchableOpacity>
-          <Text style={styles.signUpText}
-          onPress={() => router.navigate('SignUp')}>Sign Up</Text>
+        <TouchableOpacity onPress={() => router.push('/SignUp')}>
+          <Text style={styles.signUpText}>Sign Up</Text>
         </TouchableOpacity>
       </View>
 
